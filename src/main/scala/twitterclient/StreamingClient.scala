@@ -3,7 +3,9 @@
  */
 package twitterclient
 
+import scala.collection.JavaConversions._
 import twitter4j._
+import com.codahale.jerkson.Json._
 
 /**
  *
@@ -28,11 +30,32 @@ object StreamingClient {
 
     }
 
+    val backlogListener = new TwitterAdapter() {
+
+      override def gotHomeTimeline(statuses: ResponseList[Status]) {
+        statuses.toList.reverse foreach { status =>
+          val tweet = Tweet(createdAt = status.getCreatedAt, userName = status.getUser.getName, text = status.getText)
+          println(generate(tweet))
+          println
+        }
+      }
+
+      override def onException(ex: TwitterException, method: TwitterMethod) {
+        ex.printStackTrace
+      }
+
+    }
+
     val userStreamListener = new UserStreamAdapter() {
 
       override def onStatus(status: Status) {
-        if (status.getInReplyToStatusId == -1) print(" > ")
-        println("(%s) (%s) [%s] %s: %s\n" format (status.getInReplyToStatusId, status.getInReplyToUserId, status.getCreatedAt, status.getUser.getName, status.getText))
+        if (status.getInReplyToUserId == -1) {
+          val tweet = Tweet(createdAt = status.getCreatedAt, userName = status.getUser.getName, text = status.getText)
+          println(generate(tweet))
+          println
+          //          tweet.persist
+          //          println("[%s] %s: %s\n" format (tweet.createdAt, tweet.userName, tweet.text))
+        }
       }
 
       override def onRetweet(source: User, target: User, retweetedStatus: Status) {
@@ -73,9 +96,13 @@ object StreamingClient {
     //    twitterStream.addListener(listener)
     twitterStream.addListener(userStreamListener)
     //    twitterStream.stream
-    twitterStream.user
 
-    // TODO: get backlog before streaming
+    // get backlog before streaming
+    val twitter = new AsyncTwitterFactory().getInstance
+    twitter.addListener(backlogListener)
+    val statuses = twitter.getHomeTimeline
+
+    twitterStream.user
 
   }
 

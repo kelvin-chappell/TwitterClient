@@ -3,9 +3,9 @@
  */
 package twitterclient
 
+import scala.collection.JavaConversions._
 import twitter4j.conf.ConfigurationBuilder
 import twitter4j._
-import scala.collection.JavaConversions._
 
 /**
  *
