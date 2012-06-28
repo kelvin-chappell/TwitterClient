@@ -19,7 +19,7 @@ object AsyncClient {
     val listener = new TwitterAdapter() {
 
       override def gotHomeTimeline(statuses: ResponseList[Status]) {
-        statuses.toList foreach { status: Status =>
+        statuses.toList foreach { status =>
           println(status.getUser.getName + ": " + status.getText)
         }
       }
