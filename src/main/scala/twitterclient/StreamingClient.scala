@@ -34,7 +34,7 @@ object StreamingClient {
 
       override def gotHomeTimeline(statuses: ResponseList[Status]) {
         statuses.toList.reverse foreach { status =>
-          val tweet = Tweet(createdAt = status.getCreatedAt, userName = status.getUser.getName, text = status.getText)
+          val tweet = Tweet(tweetId = status.getId, createdAt = status.getCreatedAt, userName = status.getUser.getName, text = status.getText)
           println(generate(tweet))
           println
         }
@@ -50,10 +50,14 @@ object StreamingClient {
 
       override def onStatus(status: Status) {
         if (status.getInReplyToUserId == -1) {
-          val tweet = Tweet(createdAt = status.getCreatedAt, userName = status.getUser.getName, text = status.getText)
+          val tweet = Tweet(tweetId = status.getId, createdAt = status.getCreatedAt, userName = status.getUser.getName, text = status.getText)
+          try {
+            TweetDao.save(tweet)
+          } catch {
+            case e: Exception => e.printStackTrace
+          }
           println(generate(tweet))
           println
-          //          tweet.persist
           //          println("[%s] %s: %s\n" format (tweet.createdAt, tweet.userName, tweet.text))
         }
       }

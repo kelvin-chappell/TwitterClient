@@ -5,19 +5,16 @@ package twitterclient
 
 import java.util.Date
 import com.novus.salat.dao.SalatDAO
+import com.novus.salat._
 import org.bson.types.ObjectId
+import play.api.Play.current
+import se.radley.plugin.salat._
+import com.mongodb.casbah.commons.MongoDBObject
 import com.mongodb.casbah.MongoCollection
 
 /**
  *
  */
-case class Tweet(createdAt: Date, userName: String, text: String)
+case class Tweet(id: ObjectId = new ObjectId, tweetId: Long, createdAt: Date, userName: String, text: String)
 
-//object Tweet extends SalatDAO[Tweet, ObjectId](collection = MongoCollection("tweets")) {
-object Tweet {
-
-  def persist = {
-    //    update(MongoDBObject("_id" -> id), grater[Tweet].asDBObject(tweet))
-  }
-
-}
+object TweetDao extends SalatDAO[Tweet, ObjectId](collection = mongoCollection("tweets")) {}
